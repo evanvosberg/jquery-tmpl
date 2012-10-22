@@ -7,9 +7,10 @@
  * Dual licensed under the MIT or GPL Version 2 licenses.
  * http://jquery.org/license
  */
-(function( jQuery, undefined ){
+
+define("jquery/tmpl", ["jquery"], function( jQuery ){
 	var oldManip = jQuery.fn.domManip, tmplItmAtt = "_tmplitem", htmlExpr = /^[^<]*(<[\w\W]+>)[^>]*$|\{\{\! /,
-		newTmplItems = {}, wrappedItems = {}, appendToTmplItems, topTmplItem = { key: 0, data: {} }, itemKey = 0, cloneIndex = 0, stack = [];
+		newTmplItems = {}, wrappedItems = {}, appendToTmplItems, topTmplItem = { key: 0, data: {} }, itemKey = 0, cloneIndex = 0, stack = [], undefined;
 
 	function newTmplItem( options, parentItem, fn, data ) {
 		// Returns a template item data structure for a new rendered instance of a template (a 'template item').
@@ -152,13 +153,13 @@
 		},
 
 		// Return rendered template item for an element.
-		tmplItem: function( elem ) {
+		tmplItem: function( elem, key ) {
 			var tmplItem;
 			if ( elem instanceof jQuery ) {
 				elem = elem[0];
 			}
 			while ( elem && elem.nodeType === 1 && !(tmplItem = jQuery.data( elem, "tmplItem" )) && (elem = elem.parentNode) ) {}
-			return tmplItem || topTmplItem;
+			return key ? (tmplItem || topTmplItem)[ key ] : tmplItem || topTmplItem;
 		},
 
 		// Set:
@@ -243,6 +244,10 @@
 			"!": {
 				// Comment tag. Skipped by parser
 				open: ""
+			},
+			"elem": {
+				_default: { $2: "jQuery" },
+				open: "if($notnull_1){_.push(' _tmplclass=\"$2\" _tmplelement=\"'+$.encode($1a)+'\"');}"
 			}
 		},
 
@@ -378,12 +383,13 @@
 
 	// Store template items in jQuery.data(), ensuring a unique tmplItem data data structure for each rendered template instance.
 	function storeTmplItems( content ) {
-		var keySuffix = "_" + cloneIndex, elem, elems, newClonedItems = {}, i, l, m;
+		var keySuffix = "_" + cloneIndex, elem, elems, newClonedItems = {}, i, l, m, tmplElements;
 		for ( i = 0, l = content.length; i < l; i++ ) {
 			if ( (elem = content[i]).nodeType !== 1 ) {
 				continue;
 			}
 			elems = elem.getElementsByTagName("*");
+			tmplElements = {};
 			for ( m = elems.length - 1; m >= 0; m-- ) {
 				processItemKey( elems[m] );
 			}
@@ -410,6 +416,17 @@
 						cloneTmplItem( key );
 					}
 				}
+				// push elements by identifier to elements stack of template item
+				if( (key = el.getAttribute('_tmplelement')) ){
+					if( tmplElements[ key ] ){
+						unshift.call( tmplElements[ key ], el );
+					}
+					else{
+						tmplElements[ key ] = (window[ el.getAttribute('_tmplclass') ] || $)(el);
+					}
+					el.removeAttribute('_tmplelement');
+					el.removeAttribute('_tmplclass');
+				}
 				el.removeAttribute( tmplItmAtt );
 			} else if ( cloneIndex && (tmplItem = jQuery.data( el, "tmplItem" )) ) {
 				// This was a rendered element, cloned during append or appendTo etc.
@@ -421,6 +438,8 @@
 			}
 			if ( tmplItem ) {
 				pntItem = tmplItem;
+				// add elements to template item data
+				tmplItem.elements = tmplElements;
 				// Find the template item of the parent element.
 				// (Using !=, not !==, since pntItem.key is number, and pntNode may be a string)
 				while ( pntItem && pntItem.key != pntNode ) {
@@ -481,4 +500,4 @@
 		jQuery.tmpl( null, null, null, this).insertBefore( coll[0] );
 		jQuery( coll ).remove();
 	}
-})( jQuery );
+});
