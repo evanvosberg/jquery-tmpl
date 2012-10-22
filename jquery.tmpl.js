@@ -248,7 +248,7 @@ function module ( jQuery ){
 			},
 			"elem": {
 				_default: { $2: "jQuery" },
-				open: "if($notnull_1){_.push(' _tmplclass=\"$2\" _tmplelement=\"'+$.encode($1a)+'\"');}"
+				open: "if($notnull_1){__.push(' _tmplclass=\"$2\" _tmplelement=\"'+$.encode($1a)+'\"');}"
 			}
 		},
 
