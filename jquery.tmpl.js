@@ -7,11 +7,11 @@
  * Dual licensed under the MIT or GPL Version 2 licenses.
  * http://jquery.org/license
  */
-(function(){
+(function(undefined){
 
 function module ( jQuery ){
 	var oldManip = jQuery.fn.domManip, tmplItmAtt = "_tmplitem", htmlExpr = /^[^<]*(<[\w\W]+>)[^>]*$|\{\{\! /,
-		newTmplItems = {}, wrappedItems = {}, appendToTmplItems, topTmplItem = { key: 0, data: {} }, itemKey = 0, cloneIndex = 0, stack = [], undefined;
+		newTmplItems = {}, wrappedItems = {}, appendToTmplItems, topTmplItem = { key: 0, data: {} }, itemKey = 0, cloneIndex = 0, stack = [], unshift = Array.prototype.unshift;
 
 	function newTmplItem( options, parentItem, fn, data ) {
 		// Returns a template item data structure for a new rendered instance of a template (a 'template item').
@@ -84,8 +84,8 @@ function module ( jQuery ){
 		},
 
 		// Find which rendered template item the first wrapped DOM element belongs to
-		tmplItem: function() {
-			return jQuery.tmplItem( this[0] );
+		tmplItem: function(key) {
+			return jQuery.tmplItem( this[0], key );
 		},
 
 		// Consider the first wrapped element as a template declaration, and get the compiled template or store it as a named template.
