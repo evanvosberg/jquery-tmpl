@@ -7,9 +7,8 @@
  * Dual licensed under the MIT or GPL Version 2 licenses.
  * http://jquery.org/license
  */
-(function(undefined){
+(function(jQuery, undefined){
 
-function module ( jQuery ){
 	var oldManip = jQuery.fn.domManip, tmplItmAtt = "_tmplitem", htmlExpr = /^[^<]*(<[\w\W]+>)[^>]*$|\{\{\! /,
 		newTmplItems = {}, wrappedItems = {}, appendToTmplItems, topTmplItem = { key: 0, data: {} }, itemKey = 0, cloneIndex = 0, stack = [], unshift = Array.prototype.unshift;
 
@@ -501,9 +500,5 @@ function module ( jQuery ){
 		jQuery.tmpl( null, null, null, this).insertBefore( coll[0] );
 		jQuery( coll ).remove();
 	}
-}
 
-// Define as an AMD module else jQuery must be loaded before
-return typeof define === "function" && define.amd ? define("jquery/tmpl", ["jquery"], module) : module(jQuery);
-
-})();
+})(jQuery);
